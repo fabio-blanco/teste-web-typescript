@@ -4,13 +4,16 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
+// To cache the builds making the next builds much faster when using many external libraries
+// https://github.com/mzgoddard/hard-source-webpack-plugin
+var HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
+
 var config  = {
 
 	context: path.resolve(__dirname, 'src'),
 
 	entry: {
-		app:'./ts/index.ts',
-
+		app:'./ts/index.ts'
 	},
 	module: {
 		rules: [
@@ -38,6 +41,11 @@ var config  = {
 		filename: 'js/[name].bundle.js',
 		path: path.resolve(__dirname, 'dist')
 	},
+	optimization: {
+		splitChunks: {
+			chunks: 'all'
+		}
+	},
 	plugins:[
 		new CleanWebpackPlugin(['dist']),
 		new HtmlWebpackPlugin({
@@ -50,7 +58,8 @@ var config  = {
 		new webpack.ProvidePlugin({
 			$: 'jquery/src/jquery',
 			jquery: 'jquery/src/jquery'
-		})
+		}),
+		new HardSourceWebpackPlugin()
 	],
 	devServer: {
 		contentBase: path.join(__dirname, 'dist'),
@@ -73,7 +82,12 @@ module.exports = (env, argv) => {
 			}),
 			new MiniCssExtractPlugin({
 				filename: './css/styles.[hash].css'
-			})
+			}),
+			new webpack.ProvidePlugin({
+				$: 'jquery/src/jquery',
+				jquery: 'jquery/src/jquery'
+			}),
+			new HardSourceWebpackPlugin()
 		];
 	}
 
